@@ -9,20 +9,6 @@ pipeline {
 
     stages {
 
-        stage('Build') {
-            steps {
-                echo 'Installing dependencies...'
-                sh 'docker run --rm -v ${WORKSPACE}:/app -w /app node:18 npm install'
-            }
-        }
-
-        stage('Test') {
-            steps {
-                echo 'Running tests...'
-                sh 'docker run --rm -v ${WORKSPACE}:/app -w /app node:18 npm test || true'
-            }
-        }
-
         stage('Containerize') {
             steps {
                 echo 'Building Docker image...'
@@ -44,11 +30,12 @@ pipeline {
                 }
             }
         }
+
     }
 
     post {
         always {
-            echo 'Cleaning up local Docker image...'
+            echo 'Cleaning up local image...'
             sh "docker rmi ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest || true"
         }
     }
