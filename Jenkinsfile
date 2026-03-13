@@ -12,14 +12,14 @@ pipeline {
         stage('Build') {
             steps {
                 echo 'Installing dependencies...'
-                sh 'npm install'
+                sh 'docker run --rm -v $PWD:/app -w /app node:18 npm install'
             }
         }
 
         stage('Test') {
             steps {
                 echo 'Running tests...'
-                sh 'npm test || true'
+                sh 'docker run --rm -v $PWD:/app -w /app node:18 npm test || true'
             }
         }
 
@@ -32,7 +32,6 @@ pipeline {
 
         stage('Push') {
             steps {
-                echo 'Logging into Docker Hub...'
                 withCredentials([usernamePassword(
                     credentialsId: "${DOCKER_HUB_CREDS}",
                     passwordVariable: 'DOCKER_PASS',
@@ -48,7 +47,6 @@ pipeline {
 
     post {
         always {
-            echo 'Cleaning workspace'
             sh "docker rmi ${DOCKER_HUB_USER}/${IMAGE_NAME}:latest || true"
         }
     }
